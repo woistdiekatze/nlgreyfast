@@ -3,7 +3,7 @@
 
 📜 You can find a **poster** about the toolbox below:
 
-<a href="https://raw.githubusercontent.com/meco-group/nlgreyfast/master/flanders_make_conference_2022_retzler_nlgreyfast.pdf">![fmconf2022](flanders_make_conference_2022_retzler_nlgreyfast.png?raw=true)</a>
+<a href="doc/flanders_make_conference_2022_retzler_nlgreyfast.pdf">![fmconf2022](doc/flanders_make_conference_2022_retzler_nlgreyfast.png?raw=true)</a>
 
 > A. Retzler, J. Swevers, J. Gillis, and Zs. Kollár, "Nlgreyfast: toolbox for nonlinear grey-box identification", *Flanders Make Conference*, Gent, Belgium, 2022.
 
@@ -11,15 +11,15 @@
 
 Talk at the [6th Workshop on Nonlinear System Identification Benchmarks](https://www.nonlinearbenchmark.org/history):
 
-<a href="https://youtu.be/4na776RaUDs">![youtube](GitHubYouTubeBenchmarks.png?raw=true)</a>
+<a href="https://youtu.be/4na776RaUDs">![youtube](doc/GitHubYouTubeBenchmarks.png?raw=true)</a>
 
 A shorter talk at the [IEEE 17th International Conference on Advanced Motion Control](http://static.gest.unipd.it/AMC2022/):
 
-<a href="https://youtu.be/J4RziJQEDDE">![youtube](GitHubYouTube.png?raw=true)</a>
+<a href="https://youtu.be/J4RziJQEDDE">![youtube](doc/GitHubYouTube.png?raw=true)</a>
 
 🖼 We also have **visual documentation** that e.g. shows some relations between the formulas and the code, open this large poster, and 🔍 zoom into it with `Ctrl+mouse wheel`:
 
-<a href="https://www.figma.com/file/bq76Z6uR22iQoa1iNRTzX6/nlgreyfast-overview-figure">![figma](GitHubFigmaZoomedOut.png?raw=true)</a>
+<a href="https://www.figma.com/file/bq76Z6uR22iQoa1iNRTzX6/nlgreyfast-overview-figure">![figma](doc/GitHubFigmaZoomedOut.png?raw=true)</a>
 
 ## Compact summary
 
