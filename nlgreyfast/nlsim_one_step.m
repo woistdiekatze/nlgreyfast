@@ -5,8 +5,6 @@ function [one_step, states, controls, params] = nlsim_one_step(ode, fs, N_steps_
 % - *one_step*: the discrete time state equation
 % - *states*, *controls*, *params*: the CasADi symbols for `one_step(states,controls,params)`.
 
-
-import casadi.*
 dt = 1/fs/N_steps_per_sample;
 states = ode.mx_in{1};
 controls = ode.mx_in{2};
@@ -20,5 +18,4 @@ k4 = ode(states+dt*k3,controls,params);
 states_final = states+dt/6.0*(k1+2*k2+2*k3+k4);
 
 % Create a function that simulates one step propagation in a sample
-one_step = Function('one_step',{states, controls, params},{states_final});
-
+one_step = casadi.Function('one_step',{states, controls, params},{states_final});

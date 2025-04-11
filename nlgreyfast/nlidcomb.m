@@ -21,7 +21,6 @@ function [params_est_v, x0_est_v, diag_data] = nlidcomb(one_sample, fs, u_data_V
 % For N_group_size = size(y_data_V,1): equivalent to single shooting (SS).
 % For PEM use fit_against_X_guess_H_v and fix_states_to_X_guess_H_v.
 
-import casadi.*
 % _v: vertical vector 
 % _h: horizontal vector
 % _V: tall and skinny matrix (1st dimension longer)
@@ -45,9 +44,9 @@ if(~isfield(fopts,'ipopt')), fopts.ipopt = struct; end
 %% Handle free/fixed x0
 assert(all(size(x0_free_v) == size(x0_v)));
 assert(size(x0_free_v,2) == 1);
-x0_decvars_v = MX.sym('x0_decvars_v',sum(x0_free_v),1);
+x0_decvars_v = casadi.MX.sym('x0_decvars_v',sum(x0_free_v),1);
 x0_free_indexes_v = find(x0_free_v==true);
-x0_sym_v = MX(x0_v); %this is just numbers so far (in MX form), not symbols... Need to convert from double so that 
+x0_sym_v = casadi.MX(x0_v); %this is just numbers so far (in MX form), not symbols... Need to convert from double so that 
     %we can do the following assignment to individual elements in the matrix:
 x0_sym_v(x0_free_indexes_v) = x0_decvars_v;
 if isempty(lbx_x0_free_v), lbx_x0_free_v = -inf(size(x0_decvars_v)); end
@@ -89,7 +88,7 @@ dont_fix_states_to_X_guess_H_v = setdiff(1:N_states, fopts.fix_states_to_X_guess
 %we should always have 2^x threads to eliminate artifacts in graphs, thus we always round the number of cores down 
 %to the nearest power of 2, e.g. from 6 we round down to 4.
 N_threads = feature('numcores'); % This is for performance, not for a timing benchmark.
-params_v = MX.sym('params_v',length(param_guess_v),1);
+params_v = casadi.MX.sym('params_v',length(param_guess_v),1);
 assert(size(param_guess_v,2) == 1)
 assert(all(size(param_lb_v) == size(param_guess_v)))
 assert(all(size(param_ub_v) == size(param_guess_v)))
@@ -188,8 +187,8 @@ remainder_samples_mapaccum = remainder_samples_mapaccum_intermediate;
 
 
 if N_sample_groups
-    X_grouped_simstart_free_states_without_x0_H = MX.sym('X_grouped_simstart_free_states_without_x0_H', N_free_states, N_sample_groups-1);
-    X_grouped_simstart_without_x0_H = MX.zeros(N_states, N_sample_groups-1); %does not have x0_sym_v
+    X_grouped_simstart_free_states_without_x0_H = casadi.MX.sym('X_grouped_simstart_free_states_without_x0_H', N_free_states, N_sample_groups-1);
+    X_grouped_simstart_without_x0_H = casadi.MX.zeros(N_states, N_sample_groups-1); %does not have x0_sym_v
     if(~isempty(fopts.fix_states_to_X_guess_H_v))
         X_grouped_simstart_without_x0_H(fopts.fix_states_to_X_guess_H_v,:) = X_guess_H(fopts.fix_states_to_X_guess_H_v,1:N_sample_groups-1);
     end
@@ -199,20 +198,20 @@ if N_sample_groups
     X_grouped_simstart_H = [x0_sym_v X_grouped_simstart_without_x0_H];
     X_grouped_simend_without_x0_H = sample_group_map(X_grouped_simstart_H, u_data_V(1:N_grouped_samples-1,:).', repmat(params_v.*scale_v,1,N_grouped_samples-1)); %TODO add asserts to all map and mapaccum so that the inputs sizes match the inputs of the function
 else
-    X_grouped_simstart_free_states_without_x0_H = MX.zeros(N_free_states, 0);
-    X_grouped_simstart_without_x0_H = MX.zeros(N_states, 0);
-    X_grouped_simstart_H = MX.zeros(N_states, 0);
-    X_grouped_simend_without_x0_H = MX.zeros(N_states, 0);
+    X_grouped_simstart_free_states_without_x0_H = casadi.MX.zeros(N_free_states, 0);
+    X_grouped_simstart_without_x0_H = casadi.MX.zeros(N_states, 0);
+    X_grouped_simstart_H = casadi.MX.zeros(N_states, 0);
+    X_grouped_simend_without_x0_H = casadi.MX.zeros(N_states, 0);
 end
 
 if N_remainder_samples > 0 
     if N_sample_groups == 0 %handle the case when there are no groups --> it is equivalent to single shooting
-        X_remainder_simstart_free_states_without_x0_v = MX.zeros(N_free_states, 0);
-        X_remainder_simstart_without_x0_v = MX.zeros(N_states, 0);
+        X_remainder_simstart_free_states_without_x0_v = casadi.MX.zeros(N_free_states, 0);
+        X_remainder_simstart_without_x0_v = casadi.MX.zeros(N_states, 0);
         X_remainder_simstart_v = x0_sym_v;
     else
-        X_remainder_simstart_free_states_without_x0_v = MX.sym('X_remainder_simstart_without_x0_v', N_free_states, 1);
-        X_remainder_simstart_without_x0_v = MX.zeros(N_states, 1);
+        X_remainder_simstart_free_states_without_x0_v = casadi.MX.sym('X_remainder_simstart_without_x0_v', N_free_states, 1);
+        X_remainder_simstart_without_x0_v = casadi.MX.zeros(N_states, 1);
         assert(size(X_guess_H,2)==N_sample_groups) %we check if X_guess_H has otherwise been used up for the groups correctly. X_guess_H should have 1 column per sample group, - 1 column for x0 (it does not have) + 1 column for remainder = N_sample_groups columns
         if(~isempty(fopts.fix_states_to_X_guess_H_v))
             X_remainder_simstart_without_x0_v(fopts.fix_states_to_X_guess_H_v,:) = X_guess_H(fopts.fix_states_to_X_guess_H_v,end); %only the last item is kept normally
@@ -233,10 +232,10 @@ if N_remainder_samples > 0
     % The thing X_remainder_simend_without_x0_H is without x0_sym_v means that it does not contain it as the first state as is.
     % However, it still contains the simulation one sample after it... So it actually depends on x0_sym_v.
 else
-    X_remainder_simstart_v = MX.zeros(N_states, 0);
-    X_remainder_simend_without_x0_H = MX.zeros(N_states, 0);
-    X_remainder_simstart_without_x0_v = MX.zeros(N_states, 0);
-    X_remainder_simstart_free_states_without_x0_v = MX.zeros(N_free_states, 0);
+    X_remainder_simstart_v = casadi.MX.zeros(N_states, 0);
+    X_remainder_simend_without_x0_H = casadi.MX.zeros(N_states, 0);
+    X_remainder_simstart_without_x0_v = casadi.MX.zeros(N_states, 0);
+    X_remainder_simstart_free_states_without_x0_v = casadi.MX.zeros(N_free_states, 0);
 end
 
 X_simstart_without_x0_H = [X_grouped_simstart_without_x0_H X_remainder_simstart_without_x0_v];
@@ -248,7 +247,7 @@ gap_states_v = sort(setdiff(dont_fix_states_to_X_guess_H_v,fopts.disable_gaps_pe
 gaps_H = X_sim_H(gap_states_v,N_group_size+1:N_group_size:end-1)-X_simstart_without_x0_H(gap_states_v,:);
 if ~(ischar(enable_gaps_v) && strcmp(enable_gaps_v,'all')) 
     if(isempty(enable_gaps_v)) % enable_gaps_v = [] will disable all gaps
-        gaps_H = MX(size(gap_states_v,1), 0);
+        gaps_H = casadi.MX(size(gap_states_v,1), 0);
     else
         gaps_H = gaps_H(:,enable_gaps_v);
     end
@@ -303,13 +302,13 @@ solver_x0_ubx = veccat(param_ub_v, ubx_x0_free_v, ubx_X_guess_H(:));
 %g_diag_data_evalf = evalf(substitute(nlp.g,nlp.x,veccat(casadi.DM([0.14842;0.1313;0.2798;0.2798]),diag_data.X(:,1:N_group_size:end))))
 
 if fopts.opti_mode
-    opti = Opti();
+    opti = casadi.Opti();
     theta_opti_v = opti.variable(size(nlp.x,1),1);
-    mk_opti_f = Function('mk_opti_f', {nlp.x},{nlp.f},{'x'},{'f'});
+    mk_opti_f = casadi.Function('mk_opti_f', {nlp.x},{nlp.f},{'x'},{'f'});
     opti.minimize(mk_opti_f(theta_opti_v));
     opti.subject_to(solver_x0_lbx <= theta_opti_v <= solver_x0_ubx);
     if(isfield(nlp,'g'))
-        mk_opti_g = Function('mk_opti_g', {nlp.x},{nlp.g},{'x'},{'g'}); 
+        mk_opti_g = casadi.Function('mk_opti_g', {nlp.x},{nlp.g},{'x'},{'g'}); 
         opti.subject_to(lbg_v <= mk_opti_g(theta_opti_v) <= ubg_v)
         %opti.subject_to(mk_opti_g(theta_opti_v) == 0)
     end
@@ -338,11 +337,11 @@ diag_data.size_X_remainder_simend_without_x0_H = size(X_remainder_simend_without
 diag_data.X_simstart_free_states_without_x0_H = reshape(full(sol.x((size(param_guess_v,1)+size(x0_decvars_v,1)+1):end)),size(X_guess_free_states_H));
 diag_data.X_guess_H = full(X_guess_H);
 diag_data.X_guess_full_H = X_guess_full_H;
-diag_data.X_simstart_without_x0_H = full(evalf(substitute(X_simstart_without_x0_H, nlp.x, sol.x)));
+diag_data.X_simstart_without_x0_H = full(evalf(casadi.substitute(X_simstart_without_x0_H, nlp.x, sol.x)));
 diag_data.size_solver_x0_v = size(solver_x0_v);
 diag_data.size_gaps_H = size(gaps_H);
 diag_data.size_y_sim_V = size(y_sim_V);
-diag_data.X_sim_H = full(evalf(substitute(X_sim_H, nlp.x, sol.x)));
+diag_data.X_sim_H = full(evalf(casadi.substitute(X_sim_H, nlp.x, sol.x)));
 diag_data.N_free_states = N_free_states;
 diag_data.N_sample_groups = N_sample_groups;
 diag_data.N_grouped_samples = N_grouped_samples;
