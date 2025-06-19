@@ -107,7 +107,7 @@ for thread_index = 1:(N_experiment_y*length(hybrid_group_sizes))
         fopts.y_data_v = y_data_v{initial_params_index};
         logs{thread_index}.dcstats = struct;
         try
-            [param_est_comb, x0_est_v, nlgr_nlgreyest] = nlid_emps_nlgreyest('emps_plant_atan_m_mex', param_guess_v, x0_v{initial_params_index}, fopts);
+            [param_est_comb, x0_est_v, nlgr_nlgreyest] = nlid_emps_nlgreyest('emps_plant_atan_m', param_guess_v, x0_v{initial_params_index}, fopts);
             logs{thread_index}.nlgr_nlgreyest = nlgr_nlgreyest;
             logs{thread_index}.dcstats.return_status = 'Solver_Succeeded';
         catch ME
